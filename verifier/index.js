@@ -135,6 +135,13 @@ app.post("/decode-log", async (req, res) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.json({
+    service: "Dora the Explorer - Contract Verifier",
+    endpoints: ["POST /verify", "GET /contract/:address", "POST /decode-log", "GET /health"],
+  });
+});
+
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
 initSchema()
