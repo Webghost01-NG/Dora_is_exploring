@@ -63,7 +63,7 @@ export default function TxDetail() {
               <a
                 href={`/block/${tx.block_number ?? tx.blockNumber}`}
                 onClick={(e) => { e.preventDefault(); navigate(`/block/${tx.block_number ?? tx.blockNumber}`); }}
-                style={{ color: "var(--brass)" }}
+                style={{ color: "var(--blue)" }}
               >
                 #{tx.block_number ?? tx.blockNumber}
               </a>

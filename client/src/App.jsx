@@ -7,14 +7,13 @@ import Live from "./pages/Live.jsx";
 import AddressDetail from "./pages/AddressDetail.jsx";
 
 const navLinkStyle = ({ isActive }) => ({
-  fontFamily: "var(--mono)",
-  fontSize: "0.78rem",
-  letterSpacing: "0.04em",
-  textTransform: "uppercase",
+  fontFamily: "var(--body)",
+  fontSize: "0.85rem",
+  fontWeight: 600,
   textDecoration: "none",
-  color: isActive ? "var(--brass)" : "var(--text-dim)",
-  borderBottom: isActive ? "1px solid var(--brass)" : "1px solid transparent",
-  paddingBottom: "2px",
+  color: isActive ? "var(--blue)" : "var(--text-dim)",
+  borderBottom: isActive ? "2px solid var(--blue)" : "2px solid transparent",
+  paddingBottom: "4px",
 });
 
 export default function App() {

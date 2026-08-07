@@ -83,17 +83,31 @@ export default function Search() {
       )}
 
       {status === "ready" && (
-        <div className="trail">
-          {blocks.map((block) => (
-            <a key={block.number} href={`/block/${block.number}`} className="waypoint"
-               onClick={(e) => { e.preventDefault(); navigate(`/block/${block.number}`); }}>
-              <div className="waypoint-row">
-                <span className="waypoint-number">#{block.number}</span>
-                <span className="waypoint-meta">{timeAgo(block.timestamp)} · {block.tx_count ?? block.txCount ?? 0} txs</span>
-              </div>
-              <div className="waypoint-sub">{shortHash(block.hash, 10)}</div>
-            </a>
-          ))}
+        <div className="explorer-table-wrap">
+          <table className="explorer-table">
+            <thead>
+              <tr>
+                <th>Block</th>
+                <th>Age</th>
+                <th>Txns</th>
+                <th className="cell-fill">Hash</th>
+              </tr>
+            </thead>
+            <tbody>
+              {blocks.map((block) => (
+                <tr
+                  key={block.number}
+                  onClick={() => navigate(`/block/${block.number}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <td><a href={`/block/${block.number}`} className="cell-link" onClick={(e) => { e.preventDefault(); navigate(`/block/${block.number}`); }}>#{block.number}</a></td>
+                  <td className="cell-dim">{timeAgo(block.timestamp)}</td>
+                  <td className="cell-dim">{block.tx_count ?? block.txCount ?? 0}</td>
+                  <td className="cell-mono cell-fill">{shortHash(block.hash, 10)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </>

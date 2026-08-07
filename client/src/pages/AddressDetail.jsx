@@ -69,24 +69,34 @@ export default function AddressDetail() {
           )}
 
           {data.transactions && data.transactions.length > 0 && (
-            <div className="trail">
-              {data.transactions.map((tx) => {
-                const isOutgoing = (tx.from_addr || tx.from)?.toLowerCase() === addr.toLowerCase();
-                return (
-                  <div key={tx.hash} className="waypoint">
-                    <div className="waypoint-row">
-                      <span>
-                        <span className={`tx-direction ${isOutgoing ? "out" : "in"}`}>
-                          {isOutgoing ? "Out" : "In"}
-                        </span>
-                        <span className="waypoint-number">{shortHash(tx.hash)}</span>
-                      </span>
-                      <span className="waypoint-meta">{timeAgo(tx.timestamp)}</span>
-                    </div>
-                    <div className="waypoint-sub">{tx.value} wei</div>
-                  </div>
-                );
-              })}
+            <div className="explorer-table-wrap">
+              <table className="explorer-table">
+                <thead>
+                  <tr>
+                    <th>Tx hash</th>
+                    <th>Direction</th>
+                    <th>Age</th>
+                    <th className="cell-fill">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.transactions.map((tx) => {
+                    const isOutgoing = (tx.from_addr || tx.from)?.toLowerCase() === addr.toLowerCase();
+                    return (
+                      <tr key={tx.hash}>
+                        <td className="cell-mono">{shortHash(tx.hash)}</td>
+                        <td>
+                          <span className={`tx-direction ${isOutgoing ? "out" : "in"}`}>
+                            {isOutgoing ? "Out" : "In"}
+                          </span>
+                        </td>
+                        <td className="cell-dim">{timeAgo(tx.timestamp)}</td>
+                        <td className="cell-dim cell-fill">{tx.value} wei</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

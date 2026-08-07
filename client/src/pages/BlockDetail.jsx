@@ -79,22 +79,29 @@ export default function BlockDetail() {
           </div>
 
           {Array.isArray(block.transactions) && block.transactions.length > 0 && (
-            <div style={{ marginTop: "28px" }}>
+            <div style={{ marginTop: "24px" }}>
               <div className="section-eyebrow">In this block</div>
-              <div className="trail">
-                {block.transactions.map((tx) => (
-                  <a
-                    key={tx.hash}
-                    href={`/tx/${tx.hash}`}
-                    className="waypoint"
-                    onClick={(e) => { e.preventDefault(); navigate(`/tx/${tx.hash}`); }}
-                  >
-                    <div className="waypoint-row">
-                      <span className="waypoint-number">{shortHash(tx.hash)}</span>
-                      <span className="waypoint-meta">{tx.value} wei</span>
-                    </div>
-                  </a>
-                ))}
+              <div className="explorer-table-wrap" style={{ marginTop: "8px" }}>
+                <table className="explorer-table">
+                  <thead>
+                    <tr>
+                      <th>Tx hash</th>
+                      <th className="cell-fill">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {block.transactions.map((tx) => (
+                      <tr
+                        key={tx.hash}
+                        onClick={() => navigate(`/tx/${tx.hash}`)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <td><a href={`/tx/${tx.hash}`} className="cell-mono cell-link" onClick={(e) => { e.preventDefault(); navigate(`/tx/${tx.hash}`); }}>{shortHash(tx.hash)}</a></td>
+                        <td className="cell-dim cell-fill">{tx.value} wei</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

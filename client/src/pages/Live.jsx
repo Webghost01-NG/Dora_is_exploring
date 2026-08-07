@@ -34,21 +34,32 @@ export default function Live() {
       )}
 
       {blocks.length > 0 && (
-        <div className="trail">
-          {blocks.map((block, i) => (
-            <a
-              key={`${block.number}-${i}`}
-              href={`/block/${block.number}`}
-              className={`waypoint ${block._fresh && i === 0 ? "is-fresh" : ""}`}
-              onClick={(e) => { e.preventDefault(); navigate(`/block/${block.number}`); }}
-            >
-              <div className="waypoint-row">
-                <span className="waypoint-number">#{block.number}</span>
-                <span className="waypoint-meta">{timeAgo(block.timestamp)} · {block.tx_count ?? block.txCount ?? 0} txs</span>
-              </div>
-              <div className="waypoint-sub">{shortHash(block.hash, 10)}</div>
-            </a>
-          ))}
+        <div className="explorer-table-wrap">
+          <table className="explorer-table">
+            <thead>
+              <tr>
+                <th>Block</th>
+                <th>Age</th>
+                <th>Txns</th>
+                <th className="cell-fill">Hash</th>
+              </tr>
+            </thead>
+            <tbody>
+              {blocks.map((block, i) => (
+                <tr
+                  key={`${block.number}-${i}`}
+                  className={block._fresh && i === 0 ? "is-fresh" : ""}
+                  onClick={() => navigate(`/block/${block.number}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <td><a href={`/block/${block.number}`} className="cell-link" onClick={(e) => { e.preventDefault(); navigate(`/block/${block.number}`); }}>#{block.number}</a></td>
+                  <td className="cell-dim">{timeAgo(block.timestamp)}</td>
+                  <td className="cell-dim">{block.tx_count ?? block.txCount ?? 0}</td>
+                  <td className="cell-mono cell-fill">{shortHash(block.hash, 10)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
