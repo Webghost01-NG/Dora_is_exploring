@@ -4,6 +4,12 @@ A blockchain explorer built from scratch — no wrapped Etherscan API, no shortc
 Custom block indexing, contract verification, and live real-time search, built by a
 5-person team,read carefully
 
+## Feature branch work
+
+This branch, `feature/blockchain-explorer`, contains contributor updates to improve
+explorer functionality and documentation. Changes are kept inside the repository
+folder and prepared for a GitHub pull request.
+
 ## What it does
 
 - Indexes blocks and transactions directly from an RPC node in real time
@@ -76,6 +82,7 @@ npm run dev
 ```
 
 Wait until you see `[indexer] block #XXXXXXX indexed` before moving on.
+Wait until you see `[indexer] block #XXXXXXX indexed` before moving on the.
 
 ### 3. Start the backend API
 
