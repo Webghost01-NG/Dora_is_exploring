@@ -1,0 +1,18 @@
+{
+  "name": "dora-explorer-server",
+  "version": "1.0.0",
+  "description": "Dora the Explorer - backend REST API + WebSocket feed",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5",
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "indexer",
+  "version": "1.0.0",
+  "description": "Blockchain explorer indexer - listens for new blocks and writes to Postgres",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "pg": "^8.12.0",
+    "dotenv": "^16.4.5"
+  }
+}
