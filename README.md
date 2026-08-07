@@ -2,7 +2,7 @@
 
 A blockchain explorer built from scratch — no wrapped Etherscan API, no shortcuts.
 Custom block indexing, contract verification, and live real-time search, built by a
-5-person team.
+5-person team,read carefully
 
 ## Feature branch work
 
@@ -81,6 +81,7 @@ cp .env.example .env   # fill in RPC_WS_URL (wss://... from Alchemy/Infura/Quick
 npm run dev
 ```
 
+Wait until you see `[indexer] block #XXXXXXX indexed` before moving on.
 Wait until you see `[indexer] block #XXXXXXX indexed` before moving on the.
 
 ### 3. Start the backend API
