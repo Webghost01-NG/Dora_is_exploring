@@ -29,15 +29,15 @@ explorer actually is: tracing a path through data.
 
 ## Team & repo map
 
-| Folder         | Owner    | What it does                                                            |
-| -------------- | -------- | ----------------------------------------------------------------------- |
-| `/indexer`     | Person 1 | Listens for new blocks via RPC WebSocket, writes to Postgres            |
-| `/server`      | Person 2 | Express REST API + WebSocket broadcast, reads from Postgres             |
-| | `/verifier`    | Person 3 — Manoah (JM-19G) | Compiles submitted Solidity source, checks it against on-chain bytecode |
-| `/client`      | Person 4 | React frontend — search bar, block detail, transaction detail           |
-| `/client-live` | Person 5 | React frontend — live block ticker, address pages                       |
-| `/infra`       | Person 5 | Docker Compose for shared local Postgres                                |
-| `/docs`        | Person 5 | Setup notes                                                             |
+| Folder         | Owner       | What it does                                                  |
+| -------------- | ----------- | ------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `/indexer`     | Person 1    | Listens for new blocks via RPC WebSocket, writes to Postgres  |
+| `/server`      | Person 2    | Express REST API + WebSocket broadcast, reads from Postgres   |
+|                | `/verifier` | Person 3 — Manoah (JM-19G)                                    | Compiles submitted Solidity source, checks it against on-chain bytecode |
+| `/client`      | Person 4    | React frontend — search bar, block detail, transaction detail |
+| `/client-live` | Person 5    | React frontend — live block ticker, address pages             |
+| `/infra`       | Person 5    | Docker Compose for shared local Postgres                      |
+| `/docs`        | Person 5    | Setup notes                                                   |
 
 Each service is self-contained with its own `package.json`, `.env.example`, and
 README — you never need to touch another person's folder to build your own.
@@ -80,7 +80,8 @@ npm install
 cp .env.example .env   # fill in RPC_WS_URL (wss://... from Alchemy/Infura/QuickNode, Sepolia testnet)
 npm run dev
 ```
-Wait until you see `[indexer] block #XXXXXXX indexed` before moving on.
+
+Wait until you see `[indexer] block #XXXXXXX indexed` before moving on the.
 
 ### 3. Start the backend API
 
@@ -90,6 +91,7 @@ npm install
 cp .env.example .env   # defaults match infra's Postgres config, shouldn't need changes
 npm run dev
 ```
+
 Confirm it works: open `http://localhost:3001/blocks` in a browser — you should see JSON.
 
 ### 4. Start the verifier (independent, can run anytime after step 1)
