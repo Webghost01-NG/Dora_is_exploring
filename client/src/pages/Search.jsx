@@ -36,9 +36,9 @@ export default function Search() {
     const type = detectInputType(query);
     if (type === "block") return navigate(`/block/${query.trim()}`);
     if (type === "tx") return navigate(`/tx/${query.trim()}`);
-    if (type === "address") return setError("Address pages ship in the live/address build — coming from Person 5's part.");
+    if (type === "address") return navigate(`/address/${query.trim()}`);
 
-    setError("Enter a block number, or a transaction hash (0x… 66 chars).");
+    setError("Enter a block number, a transaction hash (0x… 66 chars), or an address (0x… 40 chars).");
   }
 
   return (

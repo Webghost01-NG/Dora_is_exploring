@@ -40,7 +40,7 @@ export default function Live() {
               key={`${block.number}-${i}`}
               href={`/block/${block.number}`}
               className={`waypoint ${block._fresh && i === 0 ? "is-fresh" : ""}`}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => { e.preventDefault(); navigate(`/block/${block.number}`); }}
             >
               <div className="waypoint-row">
                 <span className="waypoint-number">#{block.number}</span>
@@ -52,9 +52,6 @@ export default function Live() {
         </div>
       )}
 
-      <p className="search-hint" style={{ marginTop: "24px" }}>
-        Block detail pages live in the search/browse build (Person 4's part) — this view streams the feed only.
-      </p>
     </>
   );
 }

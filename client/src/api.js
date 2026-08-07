@@ -26,3 +26,7 @@ export function getTransaction(hash) {
 export function search(query) {
   return request(`/search?q=${encodeURIComponent(query)}`);
 }
+
+export function getAddress(addr) {
+  return request(`/address/${addr}`);
+}
