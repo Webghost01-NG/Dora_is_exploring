@@ -27,7 +27,7 @@ explorer actually is: tracing a path through data.
 | -------------- | -------- | ----------------------------------------------------------------------- |
 | `/indexer`     | Person 1 | Listens for new blocks via RPC WebSocket, writes to Postgres            |
 | `/server`      | Person 2 | Express REST API + WebSocket broadcast, reads from Postgres             |
-| `/verifier`    | Person 3 | Compiles submitted Solidity source, checks it against on-chain bytecode |
+| | `/verifier`    | Person 3 — Manoah (JM-19G) | Compiles submitted Solidity source, checks it against on-chain bytecode |
 | `/client`      | Person 4 | React frontend — search bar, block detail, transaction detail           |
 | `/client-live` | Person 5 | React frontend — live block ticker, address pages                       |
 | `/infra`       | Person 5 | Docker Compose for shared local Postgres                                |
