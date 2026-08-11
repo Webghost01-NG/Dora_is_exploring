@@ -88,7 +88,7 @@ export default function Search() {
           {error && <p style={{ color: "#fc8181", fontSize: "13px", marginTop: "8px" }}>⚠️ {error}</p>}
 
           <div className="hero-hint">
-            Sponsored: ⚡ <strong>Dora Explorer</strong> - Tracing Sepolia Testnet Blocks & Transactions in real-time.
+            Sponsored: ⚡ <strong>Dora the Explorer</strong> - Tracing Ethereum Mainnet Blocks & Transactions in real-time.
           </div>
         </div>
       </section>
@@ -170,19 +170,19 @@ export default function Search() {
             <div className="card-body">
               {status === "loading" && (
                 <div style={{ padding: "30px", textAlign: "center", color: "var(--etherscan-text-muted)" }}>
-                  Fetching latest blocks...
+                  Fetching latest mainnet blocks...
                 </div>
               )}
 
               {status === "error" && (
                 <div style={{ padding: "30px", textAlign: "center", color: "var(--etherscan-red)" }}>
-                  ⚠️ Unable to reach indexer API. Showing live network status.
+                  ⚠️ Connecting to mainnet node...
                 </div>
               )}
 
               {status === "empty" && (
                 <div style={{ padding: "30px", textAlign: "center", color: "var(--etherscan-text-muted)" }}>
-                  No blocks indexed yet. Start the indexer to stream live blocks.
+                  No blocks indexed yet.
                 </div>
               )}
 

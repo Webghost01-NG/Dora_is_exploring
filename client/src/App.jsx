@@ -27,7 +27,7 @@ export default function App() {
 
           <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
             <span className="network-badge">
-              <span className="dot" /> Sepolia Testnet
+              <span className="dot" /> Ethereum Mainnet
             </span>
           </div>
         </div>
@@ -39,9 +39,9 @@ export default function App() {
           <Link to="/" className="dora-brand">
             <div className="dora-logo-icon">D</div>
             <div className="dora-brand-text">
-              Dora <span>Explorer</span>
+              Dora <span>the Explorer</span>
             </div>
-            <span className="dora-badge">ETH</span>
+            <span className="dora-badge">ETH MAINNET</span>
           </Link>
 
           <nav>
@@ -93,10 +93,10 @@ export default function App() {
         <div className="footer-container">
           <div>
             <div className="footer-brand">
-              Dora <span>Explorer</span>
+              Dora <span>the Explorer</span>
             </div>
             <div style={{ marginTop: "4px" }}>
-              Powered by Ethereum Sepolia • Real-time Block & Contract Analytics
+              Powered by Ethereum Mainnet • Real-time Block & Contract Analytics
             </div>
           </div>
           <div>
