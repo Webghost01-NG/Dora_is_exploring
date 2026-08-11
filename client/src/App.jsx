@@ -5,46 +5,105 @@ import BlockDetail from "./pages/BlockDetail.jsx";
 import TxDetail from "./pages/TxDetail.jsx";
 import Live from "./pages/Live.jsx";
 import AddressDetail from "./pages/AddressDetail.jsx";
-
-const navLinkStyle = ({ isActive }) => ({
-  fontFamily: "var(--body)",
-  fontSize: "0.85rem",
-  fontWeight: 600,
-  textDecoration: "none",
-  color: isActive ? "var(--blue)" : "var(--text-dim)",
-  borderBottom: isActive ? "2px solid var(--blue)" : "2px solid transparent",
-  paddingBottom: "4px",
-});
+import VerifyContract from "./pages/VerifyContract.jsx";
 
 export default function App() {
   return (
-    <div className="shell">
-      <header className="topbar">
-        <Link to="/" className="brand">
-          Dora <span className="brand-mark">the Explorer</span>
-        </Link>
-        <nav style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-          <NavLink to="/" end style={navLinkStyle}>Search</NavLink>
-          <NavLink to="/live" style={navLinkStyle}>Live</NavLink>
-        </nav>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {/* ===== Etherscan Top Ticker Bar ===== */}
+      <div className="top-ticker-bar">
+        <div className="top-ticker-container">
+          <div style={{ display: "flex", gap: "18px", flexWrap: "wrap", alignItems: "center" }}>
+            <div className="ticker-item">
+              <span>ETH Price:</span>
+              <span className="ticker-val">$2,645.20</span>
+              <span style={{ color: "var(--etherscan-green)", fontSize: "11px", fontWeight: 600 }}>(+1.42%)</span>
+            </div>
+            <div className="ticker-item">
+              <span>Gas:</span>
+              <span className="ticker-val">12 Gwei</span>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+            <span className="network-badge">
+              <span className="dot" /> Sepolia Testnet
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== Etherscan Header Nav ===== */}
+      <header className="etherscan-navbar">
+        <div className="navbar-container">
+          <Link to="/" className="dora-brand">
+            <div className="dora-logo-icon">D</div>
+            <div className="dora-brand-text">
+              Dora <span>Explorer</span>
+            </div>
+            <span className="dora-badge">ETH</span>
+          </Link>
+
+          <nav>
+            <ul className="nav-links">
+              <li>
+                <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                  Home
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/live" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                  Live Ticker
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/verify" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+                  Verify Contract
+                </NavLink>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </header>
 
-      <Routes>
-        <Route path="/" element={<Search />} />
-        <Route path="/live" element={<Live />} />
-        <Route path="/block/:number" element={<BlockDetail />} />
-        <Route path="/tx/:hash" element={<TxDetail />} />
-        <Route path="/address/:addr" element={<AddressDetail />} />
-        <Route
-          path="*"
-          element={
-            <div className="state-block">
-              <strong>No trail here</strong>
-              That page doesn't exist. Head back and search again.
+      {/* ===== Main Content Area ===== */}
+      <main style={{ flex: 1 }}>
+        <Routes>
+          <Route path="/" element={<Search />} />
+          <Route path="/live" element={<Live />} />
+          <Route path="/block/:number" element={<BlockDetail />} />
+          <Route path="/tx/:hash" element={<TxDetail />} />
+          <Route path="/address/:addr" element={<AddressDetail />} />
+          <Route path="/verify" element={<VerifyContract />} />
+          <Route
+            path="*"
+            element={
+              <div className="page-container" style={{ textAlign: "center", padding: "60px 20px" }}>
+                <h2>Page Not Found</h2>
+                <p style={{ color: "var(--etherscan-text-muted)" }}>The requested page could not be located.</p>
+                <Link to="/" className="btn-primary" style={{ display: "inline-block", marginTop: "16px" }}>Back to Home</Link>
+              </div>
+            }
+          />
+        </Routes>
+      </main>
+
+      {/* ===== Etherscan Footer ===== */}
+      <footer className="etherscan-footer">
+        <div className="footer-container">
+          <div>
+            <div className="footer-brand">
+              Dora <span>Explorer</span>
             </div>
-          }
-        />
-      </Routes>
+            <div style={{ marginTop: "4px" }}>
+              Powered by Ethereum Sepolia • Real-time Block & Contract Analytics
+            </div>
+          </div>
+          <div>
+            Dora the Explorer © {new Date().getFullYear()} • Built for EVM Blockchain Tracing
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

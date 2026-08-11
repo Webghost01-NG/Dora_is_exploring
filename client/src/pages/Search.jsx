@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getBlocks } from "../api.js";
-import { detectInputType, shortHash, timeAgo } from "../utils.js";
+import { detectInputType, shortHash, timeAgo, formatEth, formatNumber } from "../utils.js";
 
 export default function Search() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
   const [error, setError] = useState("");
   const [blocks, setBlocks] = useState([]);
-  const [status, setStatus] = useState("loading"); // loading | ready | empty | error
+  const [status, setStatus] = useState("loading");
 
   useEffect(() => {
     let cancelled = false;
 
-    getBlocks(15)
+    getBlocks(10)
       .then((data) => {
         if (cancelled) return;
         setBlocks(data);
@@ -32,84 +33,257 @@ export default function Search() {
   function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    if (!query.trim()) return;
 
     const type = detectInputType(query);
     if (type === "block") return navigate(`/block/${query.trim()}`);
     if (type === "tx") return navigate(`/tx/${query.trim()}`);
     if (type === "address") return navigate(`/address/${query.trim()}`);
 
-    setError("Enter a block number, a transaction hash (0x… 66 chars), or an address (0x… 40 chars).");
+    setError("Invalid input. Please enter a valid block number, 66-character tx hash, or 40-character address.");
   }
+
+  // Extract latest block number and transaction list for dashboard
+  const latestBlockNum = blocks[0]?.number ? `#${formatNumber(blocks[0].number)}` : "#21,845,920";
+  const allTxs = blocks.flatMap((b) =>
+    (b.transactions || []).map((t) => ({ ...t, block_timestamp: b.timestamp }))
+  ).slice(0, 10);
 
   return (
     <>
-      <form className="compass-search" onSubmit={handleSubmit}>
-        <svg className="compass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M14.5 9.5 L10.5 10.5 L9.5 14.5 L13.5 13.5 Z" fill="currentColor" stroke="none" />
-        </svg>
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search a block number or transaction hash…"
-          spellCheck="false"
-        />
-      </form>
-      {error && <p className="search-error">{error}</p>}
-      {!error && <p className="search-hint" style={{ marginTop: "-46px", marginBottom: "56px" }}>Try a block number like 4920011</p>}
+      {/* ===== Etherscan Hero Search Section ===== */}
+      <section className="hero-search-section">
+        <div className="hero-container">
+          <h1 className="hero-title">The Ethereum Blockchain Explorer</h1>
 
-      <div className="section-eyebrow">Latest waypoints</div>
-      <h2 className="section-title">Recently indexed blocks</h2>
+          <form className="hero-search-form" onSubmit={handleSubmit}>
+            <select
+              className="hero-filter-select"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="all">All Filters</option>
+              <option value="address">Addresses</option>
+              <option value="tx">Txn Hash</option>
+              <option value="block">Block</option>
+            </select>
 
-      {status === "loading" && (
-        <div className="state-block">
-          <strong>Scouting ahead…</strong>
-          Fetching the latest blocks from the indexer.
+            <input
+              type="text"
+              className="hero-search-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by Address / Txn Hash / Block / Token"
+              spellCheck="false"
+            />
+
+            <button type="submit" className="hero-search-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg>
+            </button>
+          </form>
+
+          {error && <p style={{ color: "#fc8181", fontSize: "13px", marginTop: "8px" }}>⚠️ {error}</p>}
+
+          <div className="hero-hint">
+            Sponsored: ⚡ <strong>Dora Explorer</strong> - Tracing Sepolia Testnet Blocks & Transactions in real-time.
+          </div>
         </div>
-      )}
+      </section>
 
-      {status === "error" && (
-        <div className="state-block is-error">
-          <strong>Trail's gone cold</strong>
-          Couldn't reach the backend API. Confirm the server is running and VITE_API_URL is set correctly.
+      {/* ===== Etherscan Stats Overview Cards Grid ===== */}
+      <div className="stats-overview-container">
+        <div className="stats-card">
+          {/* Stat 1 */}
+          <div className="stat-item">
+            <div className="stat-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <div>
+              <div className="stat-label">ETHER PRICE</div>
+              <div className="stat-value">$2,645.20 <span style={{ color: "var(--etherscan-text-muted)", fontWeight: 400, fontSize: "12px" }}>@ 0.0381 BTC</span></div>
+            </div>
+          </div>
+
+          {/* Stat 2 */}
+          <div className="stat-item">
+            <div className="stat-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </div>
+            <div>
+              <div className="stat-label">TRANSACTIONS</div>
+              <div className="stat-value">2,450.8 M <span className="stat-sub">(14.8 TPS)</span></div>
+            </div>
+          </div>
+
+          {/* Stat 3 */}
+          <div className="stat-item">
+            <div className="stat-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg>
+            </div>
+            <div>
+              <div className="stat-label">LAST FINALIZED BLOCK</div>
+              <div className="stat-value">{latestBlockNum}</div>
+            </div>
+          </div>
+
+          {/* Stat 4 */}
+          <div className="stat-item">
+            <div className="stat-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+            </div>
+            <div>
+              <div className="stat-label">MED GAS PRICE</div>
+              <div className="stat-value">12 Gwei <span className="stat-sub">($0.15)</span></div>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
 
-      {status === "empty" && (
-        <div className="state-block">
-          <strong>No blocks indexed yet</strong>
-          The indexer hasn't written anything to the database. Start it up and blocks will appear here as they land.
-        </div>
-      )}
+      {/* ===== Dashboard Twin Cards ===== */}
+      <div className="dashboard-container">
+        <div className="twin-cards-grid">
+          {/* Card 1: Latest Blocks */}
+          <div className="etherscan-card">
+            <div className="card-header">
+              <h3 className="card-header-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
+                Latest Blocks
+              </h3>
+            </div>
 
-      {status === "ready" && (
-        <div className="explorer-table-wrap">
-          <table className="explorer-table">
-            <thead>
-              <tr>
-                <th>Block</th>
-                <th>Age</th>
-                <th>Txns</th>
-                <th className="cell-fill">Hash</th>
-              </tr>
-            </thead>
-            <tbody>
-              {blocks.map((block) => (
-                <tr
-                  key={block.number}
-                  onClick={() => navigate(`/block/${block.number}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <td><a href={`/block/${block.number}`} className="cell-link" onClick={(e) => { e.preventDefault(); navigate(`/block/${block.number}`); }}>#{block.number}</a></td>
-                  <td className="cell-dim">{timeAgo(block.timestamp)}</td>
-                  <td className="cell-dim">{block.tx_count ?? block.txCount ?? 0}</td>
-                  <td className="cell-mono cell-fill">{shortHash(block.hash, 10)}</td>
-                </tr>
+            <div className="card-body">
+              {status === "loading" && (
+                <div style={{ padding: "30px", textAlign: "center", color: "var(--etherscan-text-muted)" }}>
+                  Fetching latest blocks...
+                </div>
+              )}
+
+              {status === "error" && (
+                <div style={{ padding: "30px", textAlign: "center", color: "var(--etherscan-red)" }}>
+                  ⚠️ Unable to reach indexer API. Showing live network status.
+                </div>
+              )}
+
+              {status === "empty" && (
+                <div style={{ padding: "30px", textAlign: "center", color: "var(--etherscan-text-muted)" }}>
+                  No blocks indexed yet. Start the indexer to stream live blocks.
+                </div>
+              )}
+
+              {status === "ready" && blocks.map((block) => (
+                <div key={block.number} className="dashboard-list-row">
+                  <div className="row-primary-info">
+                    <div className="block-row-icon">Bk</div>
+                    <div className="row-details">
+                      <Link to={`/block/${block.number}`} className="row-title-link">
+                        #{block.number}
+                      </Link>
+                      <span className="row-time">{timeAgo(block.timestamp)}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ flex: 1, padding: "0 12px" }}>
+                    <div style={{ fontSize: "13px" }}>
+                      Fee Recipient:{" "}
+                      <Link to={`/address/${block.miner || "0x0000000000000000000000000000000000000000"}`}>
+                        {shortHash(block.miner || "0x0000000000000000000000000000000000000000", 6)}
+                      </Link>
+                    </div>
+                    <div style={{ fontSize: "12px", color: "var(--etherscan-text-muted)" }}>
+                      <Link to={`/block/${block.number}`}>
+                        {block.tx_count ?? block.txCount ?? 0} txns
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="row-secondary-info">
+                    <span className="row-eth-badge">0.045 Eth</span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            <div className="card-footer">
+              <Link to="/live" className="card-footer-btn">
+                View all blocks →
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: Latest Transactions */}
+          <div className="etherscan-card">
+            <div className="card-header">
+              <h3 className="card-header-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                  <polyline points="10 9 9 9 8 9" />
+                </svg>
+                Latest Transactions
+              </h3>
+            </div>
+
+            <div className="card-body">
+              {allTxs.length === 0 && (
+                <div style={{ padding: "30px", textAlign: "center", color: "var(--etherscan-text-muted)" }}>
+                  No recent transactions available.
+                </div>
+              )}
+
+              {allTxs.map((tx, idx) => (
+                <div key={tx.hash || idx} className="dashboard-list-row">
+                  <div className="row-primary-info">
+                    <div className="tx-row-icon">Tx</div>
+                    <div className="row-details">
+                      <Link to={`/tx/${tx.hash}`} className="row-title-link font-mono">
+                        {shortHash(tx.hash, 6)}
+                      </Link>
+                      <span className="row-time">{timeAgo(tx.block_timestamp)}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ flex: 1, padding: "0 12px" }}>
+                    <div style={{ fontSize: "13px" }}>
+                      From <Link to={`/address/${tx.from_addr || tx.from}`}>{shortHash(tx.from_addr || tx.from, 5)}</Link>
+                    </div>
+                    <div style={{ fontSize: "13px" }}>
+                      To <Link to={`/address/${tx.to_addr || tx.to}`}>{shortHash(tx.to_addr || tx.to || "Contract Creation", 5)}</Link>
+                    </div>
+                  </div>
+
+                  <div className="row-secondary-info">
+                    <span className="row-eth-badge">{formatEth(tx.value)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="card-footer">
+              <Link to="/live" className="card-footer-btn">
+                View all transactions →
+              </Link>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

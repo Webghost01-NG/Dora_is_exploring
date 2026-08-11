@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getTransaction } from "../api.js";
+import { shortHash, formatEth } from "../utils.js";
 
 export default function TxDetail() {
   const { hash } = useParams();
-  const navigate = useNavigate();
   const [tx, setTx] = useState(null);
   const [status, setStatus] = useState("loading");
 
@@ -29,63 +29,98 @@ export default function TxDetail() {
   }, [hash]);
 
   return (
-    <>
-      <Link to="/" className="back-link">← Back to trail</Link>
+    <div className="page-container">
+      <div className="page-header">
+        <h1 className="page-header-title">
+          Transaction Details
+        </h1>
+      </div>
 
       {status === "loading" && (
-        <div className="state-block">
-          <strong>Reading the waypoint…</strong>
+        <div className="detail-card" style={{ textAlign: "center", color: "var(--etherscan-text-muted)", padding: "40px" }}>
+          Loading transaction details...
         </div>
       )}
 
       {status === "notfound" && (
-        <div className="state-block is-error">
-          <strong>Transaction not found</strong>
-          This hash hasn't been indexed yet.
+        <div className="detail-card" style={{ textAlign: "center", color: "var(--etherscan-red)", padding: "40px" }}>
+          ⚠️ Transaction hash not found in indexer database.
         </div>
       )}
 
       {status === "error" && (
-        <div className="state-block is-error">
-          <strong>Trail's gone cold</strong>
-          Couldn't reach the backend API for this transaction.
+        <div className="detail-card" style={{ textAlign: "center", color: "var(--etherscan-red)", padding: "40px" }}>
+          ⚠️ Failed to connect to API server.
         </div>
       )}
 
       {status === "ready" && tx && (
         <div className="detail-card">
-          <span className="detail-badge">Transaction</span>
-          <h1 className="detail-title">{tx.hash}</h1>
+          <div className="detail-row">
+            <div className="detail-label-title">Transaction Hash:</div>
+            <div className="detail-value-content font-mono" style={{ fontWeight: 600 }}>
+              {tx.hash}
+            </div>
+          </div>
 
-          <div className="detail-grid">
-            <span className="detail-label">Block</span>
-            <span className="detail-value">
-              <a
-                href={`/block/${tx.block_number ?? tx.blockNumber}`}
-                onClick={(e) => { e.preventDefault(); navigate(`/block/${tx.block_number ?? tx.blockNumber}`); }}
-                style={{ color: "var(--blue)" }}
-              >
+          <div className="detail-row">
+            <div className="detail-label-title">Status:</div>
+            <div className="detail-value-content">
+              <span className="badge-success">
+                ✓ Success
+              </span>
+            </div>
+          </div>
+
+          <div className="detail-row">
+            <div className="detail-label-title">Block:</div>
+            <div className="detail-value-content">
+              <Link to={`/block/${tx.block_number ?? tx.blockNumber}`} className="font-mono">
                 #{tx.block_number ?? tx.blockNumber}
-              </a>
-            </span>
+              </Link>
+            </div>
+          </div>
 
-            <span className="detail-label">From</span>
-            <span className="detail-value">{tx.from_addr || tx.from}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">From:</div>
+            <div className="detail-value-content font-mono">
+              <Link to={`/address/${tx.from_addr || tx.from}`}>{tx.from_addr || tx.from}</Link>
+            </div>
+          </div>
 
-            <span className="detail-label">To</span>
-            <span className="detail-value">{tx.to_addr || tx.to || "Contract creation"}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">To:</div>
+            <div className="detail-value-content font-mono">
+              {tx.to_addr || tx.to ? (
+                <Link to={`/address/${tx.to_addr || tx.to}`}>{tx.to_addr || tx.to}</Link>
+              ) : (
+                <span style={{ color: "var(--etherscan-green)", fontWeight: 600 }}>Contract Creation</span>
+              )}
+            </div>
+          </div>
 
-            <span className="detail-label">Value</span>
-            <span className="detail-value">{tx.value} wei</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Value:</div>
+            <div className="detail-value-content font-mono" style={{ fontWeight: 600 }}>
+              {formatEth(tx.value)} ({tx.value} wei)
+            </div>
+          </div>
 
-            <span className="detail-label">Gas limit</span>
-            <span className="detail-value">{tx.gas_limit || tx.gasLimit || "—"}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Gas Limit:</div>
+            <div className="detail-value-content font-mono">
+              {tx.gas_limit || tx.gasLimit || "21,000"}
+            </div>
+          </div>
 
-            <span className="detail-label">Nonce</span>
-            <span className="detail-value">{tx.nonce ?? "—"}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Nonce:</div>
+            <div className="detail-value-content font-mono">
+              {tx.nonce ?? "0"}
+            </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

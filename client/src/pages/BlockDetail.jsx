@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getBlock } from "../api.js";
-import { shortHash, timeAgo } from "../utils.js";
+import { shortHash, timeAgo, formatNumber } from "../utils.js";
 
 export default function BlockDetail() {
   const { number } = useParams();
-  const navigate = useNavigate();
   const [block, setBlock] = useState(null);
   const [status, setStatus] = useState("loading");
 
@@ -30,74 +29,130 @@ export default function BlockDetail() {
   }, [number]);
 
   return (
-    <>
-      <Link to="/" className="back-link">← Back to trail</Link>
+    <div className="page-container">
+      <div className="page-header">
+        <h1 className="page-header-title">
+          Block <span className="font-mono" style={{ color: "var(--etherscan-text-muted)" }}>#{number}</span>
+        </h1>
+      </div>
 
       {status === "loading" && (
-        <div className="state-block">
-          <strong>Reading the waypoint…</strong>
+        <div className="detail-card" style={{ textAlign: "center", color: "var(--etherscan-text-muted)", padding: "40px" }}>
+          Loading block details...
         </div>
       )}
 
       {status === "notfound" && (
-        <div className="state-block is-error">
-          <strong>Block not found</strong>
-          Block #{number} hasn't been indexed. It may not exist yet, or the indexer hasn't reached it.
+        <div className="detail-card" style={{ textAlign: "center", color: "var(--etherscan-red)", padding: "40px" }}>
+          ⚠️ Block #{number} has not been indexed yet.
         </div>
       )}
 
       {status === "error" && (
-        <div className="state-block is-error">
-          <strong>Trail's gone cold</strong>
-          Couldn't reach the backend API for this block.
+        <div className="detail-card" style={{ textAlign: "center", color: "var(--etherscan-red)", padding: "40px" }}>
+          ⚠️ Failed to reach API server.
         </div>
       )}
 
       {status === "ready" && block && (
         <div className="detail-card">
-          <span className="detail-badge">Block</span>
-          <h1 className="detail-title">#{block.number}</h1>
+          <div className="detail-row">
+            <div className="detail-label-title">Block Height:</div>
+            <div className="detail-value-content font-mono" style={{ fontWeight: 600 }}>
+              #{formatNumber(block.number)}
+            </div>
+          </div>
 
-          <div className="detail-grid">
-            <span className="detail-label">Hash</span>
-            <span className="detail-value">{block.hash}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Status:</div>
+            <div className="detail-value-content">
+              <span className="badge-success">
+                ✓ Finalized
+              </span>
+            </div>
+          </div>
 
-            <span className="detail-label">Parent hash</span>
-            <span className="detail-value">{block.parent_hash || block.parentHash}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Timestamp:</div>
+            <div className="detail-value-content">
+              ⏱ {timeAgo(block.timestamp)} ({new Date((block.timestamp || 0) * 1000).toUTCString()})
+            </div>
+          </div>
 
-            <span className="detail-label">Timestamp</span>
-            <span className="detail-value">{timeAgo(block.timestamp)}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Transactions:</div>
+            <div className="detail-value-content">
+              <span className="row-eth-badge" style={{ fontSize: "12px" }}>
+                {block.tx_count ?? block.txCount ?? 0} transactions
+              </span>{" "}
+              in this block
+            </div>
+          </div>
 
-            <span className="detail-label">Miner</span>
-            <span className="detail-value">{block.miner || "—"}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Fee Recipient:</div>
+            <div className="detail-value-content font-mono">
+              {block.miner ? (
+                <Link to={`/address/${block.miner}`}>{block.miner}</Link>
+              ) : (
+                "0x0000000000000000000000000000000000000000"
+              )}
+            </div>
+          </div>
 
-            <span className="detail-label">Gas used</span>
-            <span className="detail-value">{block.gas_used || block.gasUsed || "—"}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Block Hash:</div>
+            <div className="detail-value-content font-mono" style={{ fontSize: "13px" }}>
+              {block.hash}
+            </div>
+          </div>
 
-            <span className="detail-label">Transactions</span>
-            <span className="detail-value">{block.tx_count ?? block.txCount ?? 0}</span>
+          <div className="detail-row">
+            <div className="detail-label-title">Parent Hash:</div>
+            <div className="detail-value-content font-mono" style={{ fontSize: "13px" }}>
+              <Link to={`/block/${Number(block.number) - 1}`}>{block.parent_hash || block.parentHash || "—"}</Link>
+            </div>
+          </div>
+
+          <div className="detail-row">
+            <div className="detail-label-title">Gas Used:</div>
+            <div className="detail-value-content font-mono">
+              {block.gas_used || block.gasUsed || "0"}
+            </div>
           </div>
 
           {Array.isArray(block.transactions) && block.transactions.length > 0 && (
-            <div style={{ marginTop: "24px" }}>
-              <div className="section-eyebrow">In this block</div>
-              <div className="explorer-table-wrap" style={{ marginTop: "8px" }}>
-                <table className="explorer-table">
+            <div style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "16px", marginBottom: "16px" }}>Transactions in Block #{block.number}</h3>
+              <div className="etherscan-table-wrap">
+                <table className="etherscan-table">
                   <thead>
                     <tr>
-                      <th>Tx hash</th>
-                      <th className="cell-fill">Value</th>
+                      <th>Txn Hash</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Value</th>
                     </tr>
                   </thead>
                   <tbody>
                     {block.transactions.map((tx) => (
-                      <tr
-                        key={tx.hash}
-                        onClick={() => navigate(`/tx/${tx.hash}`)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td><a href={`/tx/${tx.hash}`} className="cell-mono cell-link" onClick={(e) => { e.preventDefault(); navigate(`/tx/${tx.hash}`); }}>{shortHash(tx.hash)}</a></td>
-                        <td className="cell-dim cell-fill">{tx.value} wei</td>
+                      <tr key={tx.hash}>
+                        <td>
+                          <Link to={`/tx/${tx.hash}`} className="font-mono">
+                            {shortHash(tx.hash, 8)}
+                          </Link>
+                        </td>
+                        <td>
+                          <Link to={`/address/${tx.from_addr || tx.from}`} className="font-mono">
+                            {shortHash(tx.from_addr || tx.from, 6)}
+                          </Link>
+                        </td>
+                        <td>
+                          <Link to={`/address/${tx.to_addr || tx.to}`} className="font-mono">
+                            {shortHash(tx.to_addr || tx.to || "Contract Creation", 6)}
+                          </Link>
+                        </td>
+                        <td className="font-mono">{tx.value} wei</td>
                       </tr>
                     ))}
                   </tbody>
@@ -107,6 +162,6 @@ export default function BlockDetail() {
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }
