@@ -1,0 +1,15 @@
+{
+  "name": "dora-the-explorer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "start": "node api/index.js",
+    "dev": "cd client && npm run dev"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "ethers": "^6.13.2"
+  }
+}
