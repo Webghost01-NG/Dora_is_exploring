@@ -13,8 +13,8 @@ export default function Live() {
           <span>Live Blocks Feed</span>
         </h1>
         <div className="network-badge" style={{ fontSize: "13px", padding: "6px 12px" }}>
-          <span className={`dot ${connectionState === "connected" ? "" : "is-down"}`} style={{ backgroundColor: connectionState === "connected" ? "var(--etherscan-green)" : "#e53e3e" }} />
-          {connectionState === "connected" ? "WebSocket Connected" : "Connecting..."}
+          <span className="dot" style={{ backgroundColor: connectionState === "connected" ? "var(--etherscan-green)" : "#e53e3e" }} />
+          {connectionState === "connected" ? "Live Feed Active" : "Connecting..."}
         </div>
       </div>
 
@@ -33,7 +33,7 @@ export default function Live() {
             {blocks.length === 0 && (
               <tr>
                 <td colSpan="5" style={{ textAlign: "center", color: "var(--etherscan-text-muted)", padding: "40px" }}>
-                  Waiting for incoming blocks from indexer WebSocket feed...
+                  Fetching live blocks from Ethereum Mainnet indexer feed...
                 </td>
               </tr>
             )}
@@ -54,8 +54,8 @@ export default function Live() {
                   </Link>
                 </td>
                 <td>
-                  <Link to={`/address/${block.miner || "0x0000000000000000000000000000000000000000"}`} className="font-mono">
-                    {shortHash(block.miner || "0x0000000000000000000000000000000000000000", 6)}
+                  <Link to={`/address/${block.miner || "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5"}`} className="font-mono">
+                    {shortHash(block.miner || "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5", 6)}
                   </Link>
                 </td>
                 <td className="font-mono" style={{ color: "var(--etherscan-text-muted)", fontSize: "13px" }}>

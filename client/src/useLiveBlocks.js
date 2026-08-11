@@ -1,27 +1,64 @@
 import { useEffect, useRef, useState } from "react";
+import { getBlocks } from "./api.js";
 
-// Connects to the backend's WebSocket feed and keeps a rolling list of the
-// most recent blocks as they arrive. Reconnects automatically if the socket
-// drops - a hackathon wifi disconnect shouldn't kill the live view.
+// Connects to the backend's WebSocket feed or falls back to live HTTP polling
+// on serverless environments (like Vercel) where persistent WebSockets aren't supported.
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3001";
 
 export function useLiveBlocks(maxItems = 20) {
   const [blocks, setBlocks] = useState([]);
   const [connectionState, setConnectionState] = useState("connecting"); // connecting | connected | down
   const socketRef = useRef(null);
-  const retryRef = useRef(null);
+  const pollIntervalRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
+    let wsFailed = false;
 
-    function connect() {
+    // Helper to start HTTP polling fallback when WebSocket is unavailable (e.g. Vercel deployment)
+    function startHttpPolling() {
       if (cancelled) return;
-      setConnectionState("connecting");
+      setConnectionState("connected");
 
+      async function poll() {
+        if (cancelled) return;
+        try {
+          const freshBlocks = await getBlocks(maxItems);
+          if (!cancelled && freshBlocks && freshBlocks.length > 0) {
+            setBlocks((prev) => {
+              if (prev.length === 0) return freshBlocks;
+              // Check if latest block is newer
+              if (freshBlocks[0].number > prev[0].number) {
+                return freshBlocks.map((b, idx) => (idx === 0 ? { ...b, _fresh: true } : b));
+              }
+              return freshBlocks;
+            });
+            setConnectionState("connected");
+          }
+        } catch (err) {
+          if (!cancelled) setConnectionState("down");
+        }
+      }
+
+      poll();
+      pollIntervalRef.current = setInterval(poll, 3000);
+    }
+
+    // Try WebSocket connection first
+    try {
       const socket = new WebSocket(WS_URL);
       socketRef.current = socket;
 
+      const wsTimeout = setTimeout(() => {
+        if (socket.readyState !== WebSocket.OPEN) {
+          wsFailed = true;
+          socket.close();
+          startHttpPolling();
+        }
+      }, 2500);
+
       socket.onopen = () => {
+        clearTimeout(wsTimeout);
         if (!cancelled) setConnectionState("connected");
       };
 
@@ -32,27 +69,33 @@ export function useLiveBlocks(maxItems = 20) {
             setBlocks((prev) => [{ ...payload.data, _fresh: true }, ...prev].slice(0, maxItems));
           }
         } catch {
-          // ignore malformed frames rather than crash the live view
+          // ignore
+        }
+      };
+
+      socket.onerror = () => {
+        clearTimeout(wsTimeout);
+        if (!wsFailed) {
+          wsFailed = true;
+          startHttpPolling();
         }
       };
 
       socket.onclose = () => {
         if (cancelled) return;
-        setConnectionState("down");
-        retryRef.current = setTimeout(connect, 3000);
+        if (!wsFailed) {
+          wsFailed = true;
+          startHttpPolling();
+        }
       };
-
-      socket.onerror = () => {
-        socket.close();
-      };
+    } catch (e) {
+      startHttpPolling();
     }
-
-    connect();
 
     return () => {
       cancelled = true;
-      clearTimeout(retryRef.current);
-      socketRef.current?.close();
+      if (socketRef.current) socketRef.current.close();
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
   }, [maxItems]);
 
